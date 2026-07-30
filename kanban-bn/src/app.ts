@@ -5,6 +5,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import projectRoutes from "./routes/project.routes";
 import columnRoutes from "./routes/column.routes";
+import taskRoutes from "./routes/task.routes";
 
 
 const app = express();
@@ -22,7 +23,7 @@ app.use("/api/projects",projectRoutes);
 
 app.use("/api/columns",columnRoutes);
 
-
+app.use("/api/tasks",taskRoutes);
 app.get("/",(req,res)=>{
  res.json({
   message:"TaskFlow API running successfully"

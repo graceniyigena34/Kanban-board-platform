@@ -50,27 +50,43 @@ model Column {
 }
 
 model Task {
-  id String @id @default(uuid())
+  id          String   @id @default(uuid())
 
   title       String
   description String?
 
-  priority Priority @default(MEDIUM)
+  priority    Priority @default(MEDIUM)
 
-  dueDate DateTime?
+  dueDate     DateTime?
 
-  columnId String
-  column   Column @relation(fields: [columnId], references: [id])
 
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
+  columnId    String
+  column      Column @relation(
+    fields: [columnId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+
+  projectId   String
+  project     Project @relation(
+    fields: [projectId],
+    references: [id],
+    onDelete: Cascade
+  )
+
 
   assignedToId String?
-  assignedTo   User?   @relation(fields: [assignedToId], references: [id])
+  assignedTo User? @relation(
+    fields: [assignedToId],
+    references: [id]
+  )
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 
 enum Priority {
   LOW
