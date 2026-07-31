@@ -141,6 +141,35 @@ export async function moveTask(taskId: string, fromColumnId: string, toColumnId:
   }
 }
 
+export async function updateTask(taskId: string, columnId: string, projectId: string, data: {
+  title: string;
+  description?: string;
+  priority: string;
+  dueDate?: string;
+  estimatedHours?: number;
+}): Promise<Task> {
+  const boards = loadBoards();
+  let updated!: Task;
+  boards[projectId] = (boards[projectId] ?? []).map((col) => {
+    if (col.id !== columnId) return col;
+    const tasks = col.tasks.map((t) => {
+      if (t.id !== taskId) return t;
+      updated = {
+        ...t,
+        title: data.title,
+        description: data.description ?? t.description,
+        priority: data.priority as Task['priority'],
+        dueDate: data.dueDate ?? t.dueDate,
+        estimatedHours: data.estimatedHours ?? t.estimatedHours,
+      };
+      return updated;
+    });
+    return { ...col, tasks };
+  });
+  saveBoards(boards);
+  return updated;
+}
+
 export async function deleteTask(taskId: string, columnId: string, projectId: string): Promise<void> {
   const boards = loadBoards();
   boards[projectId] = (boards[projectId] ?? []).map((col) =>

@@ -6,6 +6,7 @@ interface Props {
   column: ColumnType;
   onDrop: (taskId: string, fromColumnId: string, toColumnId: string) => void;
   onDeleteTask: (taskId: string, columnId: string) => void;
+  onUpdateTask: (taskId: string, columnId: string, data: { title: string; description?: string; priority: string; dueDate?: string; estimatedHours?: number }) => void;
   onAddTask: (columnId: string, title: string, description: string, priority: string, dueDate: string, estimatedHours: string) => void;
 }
 
@@ -17,7 +18,7 @@ const columnStyles: Record<string, { dot: string; badge: string; dragBorder: str
 
 const defaultStyle = { dot: 'bg-blue-900', badge: 'bg-blue-900 text-white', dragBorder: 'border-blue-900', dragBg: 'bg-blue-50' };
 
-export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Props) {
+export default function Column({ column, onDrop, onDeleteTask, onUpdateTask, onAddTask }: Props) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState('');
@@ -73,7 +74,7 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
       {/* Tasks */}
       <div className="flex flex-col gap-2.5 flex-1 min-h-[60px]">
         {column.tasks.map((task: Task) => (
-          <TaskCard key={task.id} task={task} onDelete={onDeleteTask} />
+          <TaskCard key={task.id} task={task} onDelete={onDeleteTask} onUpdate={onUpdateTask} />
         ))}
       </div>
 

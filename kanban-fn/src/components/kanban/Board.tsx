@@ -1,5 +1,5 @@
 import Column from './Column';
-import { moveTask, createTask, deleteTask, type Board as BoardType } from '../../services/api';
+import { moveTask, createTask, deleteTask, updateTask, type Board as BoardType } from '../../services/api';
 
 interface Props {
   board: BoardType;
@@ -8,15 +8,12 @@ interface Props {
 
 export default function Board({ board, onBoardChange }: Props) {
   const handleDrop = async (taskId: string, fromColumnId: string, toColumnId: string) => {
-    // Optimistic UI update
     const updatedColumns = board.columns.map((col) => {
       if (col.id === fromColumnId) {
         return { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) };
       }
       if (col.id === toColumnId) {
-        const task = board.columns
-          .find((c) => c.id === fromColumnId)
-          ?.tasks.find((t) => t.id === taskId);
+        const task = board.columns.find((c) => c.id === fromColumnId)?.tasks.find((t) => t.id === taskId);
         if (!task) return col;
         return { ...col, tasks: [...col.tasks, { ...task, columnId: toColumnId }] };
       }
@@ -42,6 +39,22 @@ export default function Board({ board, onBoardChange }: Props) {
     onBoardChange({ ...board, columns: updatedColumns });
   };
 
+  const handleUpdateTask = async (taskId: string, columnId: string, data: {
+    title: string;
+    description?: string;
+    priority: string;
+    dueDate?: string;
+    estimatedHours?: number;
+  }) => {
+    const updated = await updateTask(taskId, columnId, board.id, data);
+    const updatedColumns = board.columns.map((col) =>
+      col.id === columnId
+        ? { ...col, tasks: col.tasks.map((t) => (t.id === taskId ? updated : t)) }
+        : col
+    );
+    onBoardChange({ ...board, columns: updatedColumns });
+  };
+
   const handleDeleteTask = async (taskId: string, columnId: string) => {
     await deleteTask(taskId, columnId, board.id);
     const updatedColumns = board.columns.map((col) =>
@@ -60,6 +73,7 @@ export default function Board({ board, onBoardChange }: Props) {
             column={column}
             onDrop={handleDrop}
             onDeleteTask={handleDeleteTask}
+            onUpdateTask={handleUpdateTask}
             onAddTask={handleAddTask}
           />
         ))}
