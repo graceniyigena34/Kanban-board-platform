@@ -11,9 +11,9 @@ interface Props {
 }
 
 const priorityConfig: Record<string, { label: string; className: string }> = {
-  HIGH: { label: 'High', className: 'bg-blue-900 text-white' },
+  HIGH:   { label: 'High',   className: 'bg-red-600 text-white' },
   MEDIUM: { label: 'Medium', className: 'bg-blue-100 text-blue-900' },
-  LOW: { label: 'Low', className: 'bg-gray-100 text-gray-600' },
+  LOW:    { label: 'Low',    className: 'bg-gray-100 text-gray-600' },
 };
 
 export default function TaskCard({ task, onDelete }: Props) {

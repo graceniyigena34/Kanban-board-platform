@@ -9,12 +9,22 @@ interface Props {
   onAddTask: (columnId: string, title: string, description: string, priority: string) => void;
 }
 
+const columnStyles: Record<string, { dot: string; badge: string; dragBorder: string; dragBg: string }> = {
+  'To Do':       { dot: 'bg-blue-600',  badge: 'bg-blue-600 text-white',  dragBorder: 'border-blue-600',  dragBg: 'bg-blue-50' },
+  'In Progress': { dot: 'bg-yellow-500', badge: 'bg-yellow-500 text-white', dragBorder: 'border-yellow-500', dragBg: 'bg-yellow-50' },
+  'Done':        { dot: 'bg-green-600', badge: 'bg-green-600 text-white', dragBorder: 'border-green-600', dragBg: 'bg-green-50' },
+};
+
+const defaultStyle = { dot: 'bg-blue-900', badge: 'bg-blue-900 text-white', dragBorder: 'border-blue-900', dragBg: 'bg-blue-50' };
+
 export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Props) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
+
+  const styles = columnStyles[column.name] ?? defaultStyle;
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -42,16 +52,16 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
       className={`flex flex-col w-72 shrink-0 rounded-2xl p-4 transition border-2 ${
-        isDragOver ? 'bg-blue-50 border-blue-900' : 'bg-white border-gray-200'
+        isDragOver ? `${styles.dragBg} ${styles.dragBorder}` : 'bg-white border-gray-200'
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-900" />
+          <span className={`w-2.5 h-2.5 rounded-full ${styles.dot}`} />
           <h2 className="font-semibold text-gray-800 text-sm">{column.name}</h2>
         </div>
-        <span className="bg-blue-900 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${styles.badge}`}>
           {column.tasks.length}
         </span>
       </div>
