@@ -1,52 +1,18 @@
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
 
-
-interface Props{
-
-children:React.ReactNode;
-
+interface Props {
+  children: React.ReactNode;
 }
 
-
-
-const DashboardLayout = ({children}:Props)=>{
-
-
-return (
-
-<div className="
-flex
-min-h-screen
-bg-gray-100">
-
-
-<Sidebar/>
-
-
-<div className="
-flex-1">
-
-
-<Navbar/>
-
-
-<main>
-
-{children}
-
-</main>
-
-
-</div>
-
-
-
-</div>
-
-)
-
+export default function DashboardLayout({ children }: Props) {
+  return (
+    <div className="flex min-h-screen bg-white">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Navbar />
+        <main className="flex-1 bg-blue-50">{children}</main>
+      </div>
+    </div>
+  );
 }
-
-
-export default DashboardLayout;

@@ -34,7 +34,7 @@ export default function ProjectBoardPage() {
     return (
       <DashboardLayout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-purple-600 border-t-transparent" />
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent" />
         </div>
       </DashboardLayout>
     );
@@ -47,7 +47,7 @@ export default function ProjectBoardPage() {
           <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl text-sm">
             {error || 'Board not found'}
           </div>
-          <button onClick={() => navigate('/dashboard')} className="mt-4 text-purple-600 hover:underline text-sm">
+          <button onClick={() => navigate('/dashboard')} className="mt-4 text-blue-600 hover:underline text-sm">
             ← Back to Dashboard
           </button>
         </div>
@@ -58,12 +58,11 @@ export default function ProjectBoardPage() {
   return (
     <DashboardLayout>
       <div className="p-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <button
               onClick={() => navigate('/dashboard')}
-              className="text-sm text-gray-400 hover:text-purple-600 transition mb-1 flex items-center gap-1"
+              className="text-sm text-blue-400 hover:text-blue-700 transition mb-1 flex items-center gap-1"
             >
               ← Dashboard
             </button>
@@ -74,10 +73,8 @@ export default function ProjectBoardPage() {
           </div>
         </div>
 
-        {/* Board */}
         <BoardComponent board={board} onBoardChange={setBoard} />
 
-        {/* Add Column */}
         <div className="mt-6">
           {addingCol ? (
             <form onSubmit={handleAddColumn} className="flex items-center gap-2">
@@ -86,26 +83,19 @@ export default function ProjectBoardPage() {
                 value={newColName}
                 onChange={(e) => setNewColName(e.target.value)}
                 placeholder="Column name"
-                className="border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="border border-blue-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
               />
-              <button
-                type="submit"
-                className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-purple-700 transition"
-              >
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700 transition">
                 Add
               </button>
-              <button
-                type="button"
-                onClick={() => { setAddingCol(false); setNewColName(''); }}
-                className="text-gray-400 text-sm hover:text-gray-600"
-              >
+              <button type="button" onClick={() => { setAddingCol(false); setNewColName(''); }} className="text-blue-400 text-sm hover:text-blue-700">
                 Cancel
               </button>
             </form>
           ) : (
             <button
               onClick={() => setAddingCol(true)}
-              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 transition font-medium"
+              className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-700 transition font-medium"
             >
               <span className="text-lg leading-none">+</span> Add Column
             </button>

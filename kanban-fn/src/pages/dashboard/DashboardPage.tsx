@@ -43,34 +43,34 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <p className="text-sm text-gray-500">Welcome back,</p>
+            <p className="text-sm text-blue-400">Welcome back,</p>
             <h1 className="text-2xl font-bold text-gray-900">{user?.name} 👋</h1>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-purple-200"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition"
           >
             <span className="text-lg leading-none">+</span> New Project
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-blue-100">
             <p className="text-sm text-gray-500">Total Projects</p>
-            <p className="text-3xl font-bold text-purple-600 mt-1">{projects.length}</p>
+            <p className="text-3xl font-bold text-blue-600 mt-1">{projects.length}</p>
           </div>
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <p className="text-sm text-gray-500">Active Boards</p>
-            <p className="text-3xl font-bold text-indigo-500 mt-1">{projects.length}</p>
+          <div className="bg-blue-600 rounded-2xl p-5 shadow-sm">
+            <p className="text-sm text-blue-200">Active Boards</p>
+            <p className="text-3xl font-bold text-white mt-1">{projects.length}</p>
           </div>
         </div>
 
         {/* Projects Grid */}
         {projects.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-blue-200">
             <div className="text-5xl mb-4">📋</div>
-            <p className="text-gray-500 font-medium">No projects yet</p>
+            <p className="text-gray-600 font-medium">No projects yet</p>
             <p className="text-gray-400 text-sm mt-1">Click "New Project" to get started</p>
           </div>
         ) : (
@@ -79,22 +79,22 @@ export default function DashboardPage() {
               <div
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-purple-300 hover:shadow-md cursor-pointer transition group"
+                className="bg-white rounded-2xl p-6 shadow-sm border border-blue-100 hover:border-blue-400 hover:shadow-md cursor-pointer transition group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 font-bold text-lg">
+                  <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
                     {project.name[0].toUpperCase()}
                   </div>
                   <button
                     onClick={(e) => handleDelete(project.id, e)}
-                    className="text-gray-300 hover:text-red-400 transition text-xl leading-none opacity-0 group-hover:opacity-100"
+                    className="text-blue-200 hover:text-red-400 transition text-xl leading-none opacity-0 group-hover:opacity-100"
                   >
                     ×
                   </button>
                 </div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-purple-700 transition">{project.name}</h3>
+                <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition">{project.name}</h3>
                 <p className="text-sm text-gray-400 mt-1 line-clamp-2">{project.description || 'No description'}</p>
-                <div className="mt-4 text-xs text-purple-500 font-medium">Open Board →</div>
+                <div className="mt-4 text-xs text-blue-500 font-semibold">Open Board →</div>
               </div>
             ))}
           </div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
 
       {/* Create Project Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-blue-900/50 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl">
             <h2 className="text-xl font-bold text-gray-900 mb-5">Create New Project</h2>
             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
@@ -116,30 +116,29 @@ export default function DashboardPage() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   placeholder="e.g. Website Redesign"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full border border-blue-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description <span className="text-gray-400">(optional)</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Description <span className="text-gray-400">(optional)</span>
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="What is this project about?"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  className="w-full border border-blue-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
               </div>
               <div className="flex gap-3 pt-1">
-                <button
-                  type="submit"
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition"
-                >
+                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition">
                   Create Project
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowModal(false); setName(''); setDescription(''); setError(''); }}
-                  className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
+                  className="px-5 py-2.5 rounded-xl border border-blue-200 text-gray-600 hover:bg-blue-50 transition"
                 >
                   Cancel
                 </button>
