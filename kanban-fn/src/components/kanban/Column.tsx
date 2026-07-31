@@ -6,13 +6,13 @@ interface Props {
   column: ColumnType;
   onDrop: (taskId: string, fromColumnId: string, toColumnId: string) => void;
   onDeleteTask: (taskId: string, columnId: string) => void;
-  onAddTask: (columnId: string, title: string, description: string, priority: string) => void;
+  onAddTask: (columnId: string, title: string, description: string, priority: string, dueDate: string, estimatedHours: string) => void;
 }
 
 const columnStyles: Record<string, { dot: string; badge: string; dragBorder: string; dragBg: string }> = {
-  'To Do':       { dot: 'bg-blue-600',  badge: 'bg-blue-600 text-white',  dragBorder: 'border-blue-600',  dragBg: 'bg-blue-50' },
+  'To Do':       { dot: 'bg-blue-600',   badge: 'bg-blue-600 text-white',   dragBorder: 'border-blue-600',   dragBg: 'bg-blue-50' },
   'In Progress': { dot: 'bg-yellow-500', badge: 'bg-yellow-500 text-white', dragBorder: 'border-yellow-500', dragBg: 'bg-yellow-50' },
-  'Done':        { dot: 'bg-green-600', badge: 'bg-green-600 text-white', dragBorder: 'border-green-600', dragBg: 'bg-green-50' },
+  'Done':        { dot: 'bg-green-600',  badge: 'bg-green-600 text-white',  dragBorder: 'border-green-600',  dragBg: 'bg-green-50' },
 };
 
 const defaultStyle = { dot: 'bg-blue-900', badge: 'bg-blue-900 text-white', dragBorder: 'border-blue-900', dragBg: 'bg-blue-50' };
@@ -23,6 +23,8 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('MEDIUM');
+  const [dueDate, setDueDate] = useState('');
+  const [estimatedHours, setEstimatedHours] = useState('');
 
   const styles = columnStyles[column.name] ?? defaultStyle;
 
@@ -39,10 +41,12 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onAddTask(column.id, title.trim(), description.trim(), priority);
+    onAddTask(column.id, title.trim(), description.trim(), priority, dueDate, estimatedHours);
     setTitle('');
     setDescription('');
     setPriority('MEDIUM');
+    setDueDate('');
+    setEstimatedHours('');
     setShowAdd(false);
   };
 
@@ -73,7 +77,7 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
         ))}
       </div>
 
-      {/* Add Task */}
+      {/* Add Task Form */}
       {showAdd ? (
         <form onSubmit={handleAddSubmit} className="mt-3 bg-slate-50 rounded-xl p-3 border border-gray-200 space-y-2">
           <input
@@ -99,9 +103,35 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
             <option value="MEDIUM">Medium priority</option>
             <option value="HIGH">High priority</option>
           </select>
-          <div className="flex gap-2">
+
+          {/* Due Date */}
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Due date</label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+            />
+          </div>
+
+          {/* Estimated Hours */}
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Estimated hours</label>
+            <input
+              type="number"
+              min="0.5"
+              step="0.5"
+              value={estimatedHours}
+              onChange={(e) => setEstimatedHours(e.target.value)}
+              placeholder="e.g. 2.5"
+              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-1">
             <button type="submit" className="flex-1 bg-blue-900 text-white text-sm py-1.5 rounded-lg hover:bg-blue-800 transition">
-              Add
+              Add Task
             </button>
             <button type="button" onClick={() => setShowAdd(false)} className="text-gray-400 text-sm px-2 hover:text-blue-900">
               Cancel

@@ -6,6 +6,8 @@ interface Props {
     priority: string;
     columnId: string;
     projectId: string;
+    dueDate?: string | null;
+    estimatedHours?: number | null;
   };
   onDelete: (taskId: string, columnId: string) => void;
 }
@@ -39,6 +41,21 @@ export default function TaskCard({ task, onDelete }: Props) {
       </div>
       {task.description && (
         <p className="text-xs text-gray-400 mt-1.5 line-clamp-2">{task.description}</p>
+      )}
+      {/* Date & Hours */}
+      {(task.dueDate || task.estimatedHours) && (
+        <div className="flex items-center gap-3 mt-2">
+          {task.dueDate && (
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              📅 {new Date(task.dueDate).toLocaleDateString()}
+            </span>
+          )}
+          {task.estimatedHours && (
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              ⏱ {task.estimatedHours}h
+            </span>
+          )}
+        </div>
       )}
       <div className="mt-3">
         <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${priority.className}`}>

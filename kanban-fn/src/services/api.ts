@@ -5,6 +5,8 @@ export type Task = {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   columnId: string;
   projectId: string;
+  dueDate?: string | null;
+  estimatedHours?: number | null;
 };
 
 export type Column = {
@@ -98,6 +100,8 @@ export async function createTask(payload: {
   priority: string;
   columnId: string;
   projectId: string;
+  dueDate?: string;
+  estimatedHours?: number;
 }): Promise<Task> {
   const task: Task = {
     id: `task-${Date.now()}`,
@@ -106,6 +110,8 @@ export async function createTask(payload: {
     priority: payload.priority as Task['priority'],
     columnId: payload.columnId,
     projectId: payload.projectId,
+    dueDate: payload.dueDate || null,
+    estimatedHours: payload.estimatedHours || null,
   };
   const boards = loadBoards();
   boards[payload.projectId] = (boards[payload.projectId] ?? []).map((col) =>

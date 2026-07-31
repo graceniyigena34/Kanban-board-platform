@@ -26,8 +26,16 @@ export default function Board({ board, onBoardChange }: Props) {
     await moveTask(taskId, fromColumnId, toColumnId, board.id);
   };
 
-  const handleAddTask = async (columnId: string, title: string, description: string, priority: string) => {
-    const task = await createTask({ title, description, priority, columnId, projectId: board.id });
+  const handleAddTask = async (columnId: string, title: string, description: string, priority: string, dueDate: string, estimatedHours: string) => {
+    const task = await createTask({
+      title,
+      description,
+      priority,
+      columnId,
+      projectId: board.id,
+      dueDate: dueDate || undefined,
+      estimatedHours: estimatedHours ? parseFloat(estimatedHours) : undefined,
+    });
     const updatedColumns = board.columns.map((col) =>
       col.id === columnId ? { ...col, tasks: [...col.tasks, task] } : col
     );

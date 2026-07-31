@@ -1,152 +1,75 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjects, createProject, deleteProject, type Project } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { getAllTasks, getProjects } from '../../services/api';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
+  const [projectCount, setProjectCount] = useState(0);
+  const [taskCount, setTaskCount] = useState(0);
 
   useEffect(() => {
-    getProjects().then(setProjects);
+    getProjects().then((p) => setProjectCount(p.length));
+    setTaskCount(getAllTasks().length);
   }, []);
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    try {
-      const project = await createProject(name.trim(), description.trim() || undefined);
-      setProjects((prev) => [...prev, project]);
-      setName('');
-      setDescription('');
-      setShowModal(false);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    await deleteProject(id);
-    setProjects((prev) => prev.filter((p) => p.id !== id));
-  };
 
   return (
     <DashboardLayout>
       <div className="p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <p className="text-sm text-gray-400">Welcome back,</p>
-            <h1 className="text-2xl font-bold text-gray-900">{user?.name} 👋</h1>
-          </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl font-medium transition"
-          >
-            <span className="text-lg leading-none">+</span> New Project
-          </button>
+        {/* Welcome */}
+        <div className="mb-8">
+          <p className="text-sm text-gray-400">Welcome back,</p>
+          <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
             <p className="text-sm text-gray-500">Total Projects</p>
-            <p className="text-3xl font-bold text-blue-900 mt-1">{projects.length}</p>
+            <p className="text-3xl font-bold text-blue-900 mt-1">{projectCount}</p>
           </div>
           <div className="bg-blue-900 rounded-2xl p-5 shadow-sm">
-            <p className="text-sm text-blue-300">Active Boards</p>
-            <p className="text-3xl font-bold text-white mt-1">{projects.length}</p>
+            <p className="text-sm text-blue-300">Total Tasks</p>
+            <p className="text-3xl font-bold text-white mt-1">{taskCount}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+            <p className="text-sm text-gray-500">Active Boards</p>
+            <p className="text-3xl font-bold text-blue-900 mt-1">{projectCount}</p>
           </div>
         </div>
 
-        {/* Projects Grid */}
-        {projects.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-            <div className="text-5xl mb-4">📋</div>
-            <p className="text-gray-600 font-medium">No projects yet</p>
-            <p className="text-gray-400 text-sm mt-1">Click "New Project" to get started</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                onClick={() => navigate(`/projects/${project.id}`)}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:border-blue-900 hover:shadow-md cursor-pointer transition group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-                    {project.name[0].toUpperCase()}
-                  </div>
-                  <button
-                    onClick={(e) => handleDelete(project.id, e)}
-                    className="text-gray-300 hover:text-red-400 transition text-xl leading-none opacity-0 group-hover:opacity-100"
-                  >
-                    ×
-                  </button>
-                </div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-blue-900 transition">{project.name}</h3>
-                <p className="text-sm text-gray-400 mt-1 line-clamp-2">{project.description || 'No description'}</p>
-                <div className="mt-4 text-xs text-blue-900 font-semibold">Open Board →</div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Quick actions */}
+        <div className="grid md:grid-cols-3 gap-5 mb-8">
+          {[
+            { icon: '', title: 'Manage Projects', desc: 'Create and view all your projects.', action: () => navigate('/projects') },
+            { icon: '', title: 'View Tasks', desc: 'See all tasks across every board.', action: () => navigate('/tasks') },
+            { icon: '', title: 'Open a Board', desc: 'Jump into a project Kanban board.', action: () => navigate('/projects') },
+          ].map((item) => (
+            <div
+              key={item.title}
+              onClick={item.action}
+              className="bg-white rounded-2xl p-6 border border-gray-200 hover:border-blue-900 hover:shadow-md cursor-pointer transition"
+            >
+              <div className="text-3xl mb-3">{item.icon}</div>
+              <h3 className="font-semibold text-gray-900">{item.title}</h3>
+              <p className="text-sm text-gray-400 mt-1">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Tips */}
+        <div className="bg-blue-900 rounded-2xl p-6 text-white">
+          <h2 className="font-bold text-lg mb-3">Getting Started</h2>
+          <ul className="space-y-2 text-sm text-blue-200">
+            <li>→ Go to <span className="text-white font-medium">Projects</span> in the sidebar to create your first project</li>
+            <li>→ Open a project board and add tasks to columns</li>
+            <li>→ Drag and drop tasks between columns to track progress</li>
+            <li>→ Visit <span className="text-white font-medium">Tasks</span> to see all tasks in one place</li>
+          </ul>
+        </div>
       </div>
-
-      {/* Create Project Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl">
-            <h2 className="text-xl font-bold text-gray-900 mb-5">Create New Project</h2>
-            {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Project name</label>
-                <input
-                  autoFocus
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="e.g. Website Redesign"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Description <span className="text-gray-400">(optional)</span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  placeholder="What is this project about?"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent resize-none"
-                />
-              </div>
-              <div className="flex gap-3 pt-1">
-                <button type="submit" className="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-xl transition">
-                  Create Project
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setShowModal(false); setName(''); setDescription(''); setError(''); }}
-                  className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 }
