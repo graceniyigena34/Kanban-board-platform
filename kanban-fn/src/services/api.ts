@@ -142,3 +142,20 @@ export async function deleteTask(taskId: string, columnId: string, projectId: st
   );
   saveBoards(boards);
 }
+
+export type TaskWithMeta = Task & { projectName: string; columnName: string };
+
+export function getAllTasks(): TaskWithMeta[] {
+  const projects = loadProjects();
+  const boards = loadBoards();
+  const result: TaskWithMeta[] = [];
+  for (const project of projects) {
+    const columns = boards[project.id] ?? [];
+    for (const col of columns) {
+      for (const task of col.tasks) {
+        result.push({ ...task, projectName: project.name, columnName: col.name });
+      }
+    }
+  }
+  return result;
+}

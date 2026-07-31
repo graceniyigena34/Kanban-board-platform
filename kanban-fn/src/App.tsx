@@ -5,6 +5,7 @@ import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ProjectBoardPage from './pages/projects/ProjectBoardPage';
 import LandingPage from './pages/landing/landingpage';
+import TasksPage from './pages/tasks/TasksPage';
 import ProtectedRoute from './routes/protected/ProtectedRoute';
 
 function AppShell() {
@@ -20,6 +21,7 @@ function AppShell() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/projects" element={<DashboardPage />} />
           <Route path="/projects/:projectId" element={<ProjectBoardPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, LogOut } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CheckSquare, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Sidebar() {
@@ -37,6 +37,10 @@ export default function Sidebar() {
         <NavLink to="/projects" className={linkClass}>
           <FolderKanban size={18} />
           Projects
+        </NavLink>
+        <NavLink to="/tasks" className={linkClass}>
+          <CheckSquare size={18} />
+          Tasks
         </NavLink>
       </nav>
 
