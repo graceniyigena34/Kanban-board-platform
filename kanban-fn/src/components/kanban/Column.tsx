@@ -42,16 +42,16 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
       className={`flex flex-col w-72 shrink-0 rounded-2xl p-4 transition border-2 ${
-        isDragOver ? 'bg-blue-100 border-blue-400' : 'bg-white border-blue-100'
+        isDragOver ? 'bg-blue-50 border-blue-900' : 'bg-white border-gray-200'
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-900" />
           <h2 className="font-semibold text-gray-800 text-sm">{column.name}</h2>
         </div>
-        <span className="bg-blue-100 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+        <span className="bg-blue-900 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
           {column.tasks.length}
         </span>
       </div>
@@ -65,35 +65,35 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
 
       {/* Add Task */}
       {showAdd ? (
-        <form onSubmit={handleAddSubmit} className="mt-3 bg-blue-50 rounded-xl p-3 border border-blue-200 space-y-2">
+        <form onSubmit={handleAddSubmit} className="mt-3 bg-slate-50 rounded-xl p-3 border border-gray-200 space-y-2">
           <input
             autoFocus
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title"
             required
-            className="w-full text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
           />
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description (optional)"
-            className="w-full text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
           />
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="w-full text-sm border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
           >
             <option value="LOW">Low priority</option>
             <option value="MEDIUM">Medium priority</option>
             <option value="HIGH">High priority</option>
           </select>
           <div className="flex gap-2">
-            <button type="submit" className="flex-1 bg-blue-600 text-white text-sm py-1.5 rounded-lg hover:bg-blue-700 transition">
+            <button type="submit" className="flex-1 bg-blue-900 text-white text-sm py-1.5 rounded-lg hover:bg-blue-800 transition">
               Add
             </button>
-            <button type="button" onClick={() => setShowAdd(false)} className="text-blue-400 text-sm px-2 hover:text-blue-700">
+            <button type="button" onClick={() => setShowAdd(false)} className="text-gray-400 text-sm px-2 hover:text-blue-900">
               Cancel
             </button>
           </div>
@@ -101,7 +101,7 @@ export default function Column({ column, onDrop, onDeleteTask, onAddTask }: Prop
       ) : (
         <button
           onClick={() => setShowAdd(true)}
-          className="mt-3 flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-700 transition font-medium"
+          className="mt-3 flex items-center gap-1.5 text-sm text-gray-400 hover:text-blue-900 transition font-medium"
         >
           <span className="text-lg leading-none">+</span> Add task
         </button>

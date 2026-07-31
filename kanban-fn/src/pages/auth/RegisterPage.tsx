@@ -26,16 +26,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-600 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-blue-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-white rounded-2xl mb-4 shadow-lg">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-white">KanbanBoard</h1>
-          <p className="text-blue-200 mt-1">Create your free account</p>
+          <p className="text-blue-300 mt-1">Create your free account</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -52,7 +52,7 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 required
                 placeholder="Grace Doe"
-                className="w-full border border-blue-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               />
             </div>
             <div>
@@ -63,7 +63,7 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full border border-blue-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               />
             </div>
             <div>
@@ -75,20 +75,20 @@ export default function RegisterPage() {
                 required
                 minLength={6}
                 placeholder="Min. 6 characters"
-                className="w-full border border-blue-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-60"
+              className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 rounded-xl transition disabled:opacity-60"
             >
               {loading ? 'Creating account…' : 'Create Account'}
             </button>
           </form>
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+            <Link to="/login" className="text-blue-900 font-semibold hover:underline">
               Sign in
             </Link>
           </p>
