@@ -1,70 +1,153 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { createProject, getProjects } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import { getProjects, createProject, deleteProject, type Project } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState<Array<{ id: string; name: string; description?: string | null }>>([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  const loadProjects = async () => {
+  useEffect(() => {
+    getProjects().then(setProjects);
+  }, []);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
     try {
-      const data = await getProjects();
-      setProjects(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load projects');
-    } finally {
-      setLoading(false);
+      const project = await createProject(name.trim(), description.trim() || undefined);
+      setProjects((prev) => [...prev, project]);
+      setName('');
+      setDescription('');
+      setShowModal(false);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
-  useEffect(() => {
-    void loadProjects();
-  }, []);
-
-  const handleCreate = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError('');
-    try {
-      await createProject(name, description);
-      setName('');
-      setDescription('');
-      await loadProjects();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to create project');
-    }
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await deleteProject(id);
+    setProjects((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">Workspace</p>
-          <h1 className="text-3xl font-semibold text-slate-900">Projects</h1>
+    <DashboardLayout>
+      <div className="p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <p className="text-sm text-gray-500">Welcome back,</p>
+            <h1 className="text-2xl font-bold text-gray-900">{user?.name} 👋</h1>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-purple-200"
+          >
+            <span className="text-lg leading-none">+</span> New Project
+          </button>
         </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <p className="text-sm text-gray-500">Total Projects</p>
+            <p className="text-3xl font-bold text-purple-600 mt-1">{projects.length}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <p className="text-sm text-gray-500">Active Boards</p>
+            <p className="text-3xl font-bold text-indigo-500 mt-1">{projects.length}</p>
+          </div>
+        </div>
+
+        {/* Projects Grid */}
+        {projects.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+            <div className="text-5xl mb-4">📋</div>
+            <p className="text-gray-500 font-medium">No projects yet</p>
+            <p className="text-gray-400 text-sm mt-1">Click "New Project" to get started</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.id}`)}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-purple-300 hover:shadow-md cursor-pointer transition group"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 font-bold text-lg">
+                    {project.name[0].toUpperCase()}
+                  </div>
+                  <button
+                    onClick={(e) => handleDelete(project.id, e)}
+                    className="text-gray-300 hover:text-red-400 transition text-xl leading-none opacity-0 group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
+                </div>
+                <h3 className="font-semibold text-gray-900 group-hover:text-purple-700 transition">{project.name}</h3>
+                <p className="text-sm text-gray-400 mt-1 line-clamp-2">{project.description || 'No description'}</p>
+                <div className="mt-4 text-xs text-purple-500 font-medium">Open Board →</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <form onSubmit={handleCreate} className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Create a new project</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" className="rounded border border-slate-300 px-3 py-2" required />
-          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded border border-slate-300 px-3 py-2" />
+      {/* Create Project Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl">
+            <h2 className="text-xl font-bold text-gray-900 mb-5">Create New Project</h2>
+            {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Project name</label>
+                <input
+                  autoFocus
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="e.g. Website Redesign"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description <span className="text-gray-400">(optional)</span></label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  placeholder="What is this project about?"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                />
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition"
+                >
+                  Create Project
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowModal(false); setName(''); setDescription(''); setError(''); }}
+                  className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-        <button className="mt-4 rounded bg-slate-900 px-4 py-2 font-medium text-white">Create project</button>
-      </form>
-
-      {loading ? <p className="text-slate-600">Loading projects…</p> : null}
-      <div className="grid gap-4 md:grid-cols-2">
-        {projects.map((project) => (
-          <Link key={project.id} to={`/projects/${project.id}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-slate-400">
-            <h3 className="text-lg font-semibold text-slate-900">{project.name}</h3>
-            <p className="mt-2 text-sm text-slate-600">{project.description || 'No description yet.'}</p>
-          </Link>
-        ))}
-      </div>
-    </div>
+      )}
+    </DashboardLayout>
   );
 }
