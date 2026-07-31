@@ -50,9 +50,9 @@ export default function LandingPage() {
       <section className="bg-slate-50 py-20 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
           {[
-            { icon: '📋', title: 'Kanban Boards', desc: 'Visualize your workflow with drag-and-drop task management.' },
-            { icon: '🚀', title: 'Project Tracking', desc: 'Create and manage multiple projects all in one place.' },
-            { icon: '✅', title: 'Task Management', desc: 'Add, prioritize and move tasks across columns effortlessly.' },
+            { icon: '', title: 'Kanban Boards', desc: 'Visualize your workflow with drag-and-drop task management.' },
+            { icon: '', title: 'Project Tracking', desc: 'Create and manage multiple projects all in one place.' },
+            { icon: '', title: 'Task Management', desc: 'Add, prioritize and move tasks across columns effortlessly.' },
           ].map((f) => (
             <div key={f.title} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 text-center">
               <div className="text-4xl mb-4">{f.icon}</div>
