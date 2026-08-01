@@ -1,4 +1,4 @@
-import {Request, Response} from "express";
+import { Response } from "express";
 
 import {
  createTask,
@@ -9,10 +9,12 @@ import {
  deleteTask
 } from "../services/task.service";
 
+import { AuthRequest } from "../middleware/auth.middleware";
+
 
 
 export const create = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -24,6 +26,7 @@ try{
   req.body.priority,
   req.body.columnId,
   req.body.projectId,
+    req.userId!,
   req.body.assignedToId
  );
 
@@ -45,7 +48,7 @@ try{
 
 
 export const getByColumn = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -59,7 +62,8 @@ try{
  }
 
  const tasks = await getTasksByColumn(
-  columnId
+    columnId,
+    req.userId!
  );
 
 
@@ -80,7 +84,7 @@ try{
 
 
 export const getOne = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -94,7 +98,8 @@ try{
  }
 
  const task = await getTaskById(
-  taskId
+    taskId,
+    req.userId!
  );
 
 
@@ -122,7 +127,7 @@ try{
 
 
 export const update = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -137,6 +142,7 @@ try{
 
  const task = await updateTask(
   taskId,
+    req.userId!,
   req.body
  );
 
@@ -158,7 +164,7 @@ try{
 
 
 export const move = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -173,7 +179,8 @@ try{
 
  const task = await moveTask(
   taskId,
-  req.body.columnId
+    req.body.columnId,
+    req.userId!
  );
 
 
@@ -194,7 +201,7 @@ try{
 
 
 export const remove = async(
-req:Request,
+req:AuthRequest,
 res:Response
 )=>{
 
@@ -208,7 +215,8 @@ try{
  }
 
  await deleteTask(
-  taskId
+    taskId,
+    req.userId!
  );
 
 

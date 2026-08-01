@@ -21,7 +21,8 @@ try{
  const column = await createColumn(
    req.body.name,
    req.body.order,
-   req.body.projectId
+   req.body.projectId,
+   req.userId!
  );
 
 
@@ -55,7 +56,8 @@ try{
  }
 
  const columns = await getColumns(
-   projectId
+   projectId,
+   req.userId!
  );
 
 
@@ -90,6 +92,7 @@ try{
 
  const column = await updateColumn(
    columnId,
+   req.userId!,
    req.body
  );
 
@@ -124,7 +127,8 @@ try{
  }
 
  await deleteColumn(
-   columnId
+   columnId,
+   req.userId!
  );
 
 

@@ -7,8 +7,31 @@ export const createTask = async(
  priority:string,
  columnId:string,
  projectId:string,
+  ownerId:string,
  assignedToId?:string
 )=>{
+
+ const project = await prisma.project.findFirst({
+   where:{
+    id: projectId,
+    ownerId
+   }
+ });
+
+ if (!project) {
+   throw new Error("Project not found");
+ }
+
+ const column = await prisma.column.findFirst({
+   where:{
+    id: columnId,
+    projectId
+   }
+ });
+
+ if (!column) {
+   throw new Error("Column not found");
+ }
 
  return await prisma.task.create({
   data:{
@@ -26,8 +49,22 @@ export const createTask = async(
 
 
 export const getTasksByColumn = async(
- columnId:string
+ columnId:string,
+ ownerId:string
 )=>{
+
+ const column = await prisma.column.findFirst({
+   where:{
+    id: columnId,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!column) {
+   throw new Error("Column not found");
+ }
 
  return await prisma.task.findMany({
   where:{
@@ -43,14 +80,20 @@ export const getTasksByColumn = async(
 
 
 export const getTaskById = async(
- id:string
+ id:string,
+ ownerId:string
 )=>{
 
- return await prisma.task.findUnique({
+ const task = await prisma.task.findFirst({
   where:{
-   id
+    id,
+    project:{
+      ownerId
+    }
   }
  });
+
+ return task;
 
 };
 
@@ -58,8 +101,22 @@ export const getTaskById = async(
 
 export const updateTask = async(
  id:string,
+  ownerId:string,
  data:any
 )=>{
+
+ const task = await prisma.task.findFirst({
+   where:{
+    id,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!task) {
+   throw new Error("Task not found");
+ }
 
  return await prisma.task.update({
   where:{
@@ -74,8 +131,35 @@ export const updateTask = async(
 
 export const moveTask = async(
  id:string,
- columnId:string
+  columnId:string,
+  ownerId:string
 )=>{
+
+ const task = await prisma.task.findFirst({
+   where:{
+    id,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!task) {
+   throw new Error("Task not found");
+ }
+
+ const column = await prisma.column.findFirst({
+   where:{
+    id: columnId,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!column) {
+   throw new Error("Column not found");
+ }
 
  return await prisma.task.update({
   where:{
@@ -91,8 +175,22 @@ export const moveTask = async(
 
 
 export const deleteTask = async(
- id:string
+ id:string,
+ ownerId:string
 )=>{
+
+ const task = await prisma.task.findFirst({
+   where:{
+    id,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!task) {
+   throw new Error("Task not found");
+ }
 
  return await prisma.task.delete({
   where:{

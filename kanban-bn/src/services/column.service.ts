@@ -4,8 +4,20 @@ import prisma from "../config/db";
 export const createColumn = async(
   name:string,
   order:number,
-  projectId:string
+  projectId:string,
+  ownerId:string
 )=>{
+
+ const project = await prisma.project.findFirst({
+   where:{
+    id: projectId,
+    ownerId
+   }
+ });
+
+ if (!project) {
+   throw new Error("Project not found");
+ }
 
  return await prisma.column.create({
    data:{
@@ -20,8 +32,20 @@ export const createColumn = async(
 
 
 export const getColumns = async(
- projectId:string
+ projectId:string,
+ ownerId:string
 )=>{
+
+ const project = await prisma.project.findFirst({
+   where:{
+    id: projectId,
+    ownerId
+   }
+ });
+
+ if (!project) {
+   throw new Error("Project not found");
+ }
 
  return await prisma.column.findMany({
    where:{
@@ -41,11 +65,25 @@ export const getColumns = async(
 
 export const updateColumn = async(
  id:string,
+  ownerId:string,
  data:{
    name?:string;
    order?:number;
  }
 )=>{
+
+ const column = await prisma.column.findFirst({
+   where:{
+    id,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!column) {
+   throw new Error("Column not found");
+ }
 
  return await prisma.column.update({
    where:{
@@ -59,8 +97,22 @@ export const updateColumn = async(
 
 
 export const deleteColumn = async(
- id:string
+ id:string,
+ ownerId:string
 )=>{
+
+ const column = await prisma.column.findFirst({
+   where:{
+    id,
+    project:{
+      ownerId
+    }
+   }
+ });
+
+ if (!column) {
+   throw new Error("Column not found");
+ }
 
  return await prisma.column.delete({
    where:{
