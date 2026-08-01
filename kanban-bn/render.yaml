@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kanban-bn
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma migrate deploy && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
