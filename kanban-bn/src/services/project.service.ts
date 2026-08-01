@@ -67,10 +67,20 @@ export const updateProject = async (
   }
 )=>{
 
-  return await prisma.project.updateMany({
+  const project = await prisma.project.findFirst({
     where:{
       id,
       ownerId
+    }
+  });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  return await prisma.project.update({
+    where:{
+      id
     },
     data
   });
@@ -84,10 +94,20 @@ export const deleteProject = async (
   ownerId:string
 )=>{
 
-  return await prisma.project.deleteMany({
+  const project = await prisma.project.findFirst({
     where:{
       id,
       ownerId
+    }
+  });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  return await prisma.project.delete({
+    where:{
+      id
     }
   });
 

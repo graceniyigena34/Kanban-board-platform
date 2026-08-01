@@ -24,7 +24,9 @@ export const register = async (
 
  }catch(error:any){
 
- res.status(400).json({
+ const statusCode = error.message === "User already exists" ? 409 : 400;
+
+ res.status(statusCode).json({
    message:error.message
  });
 

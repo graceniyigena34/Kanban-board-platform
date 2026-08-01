@@ -8,10 +8,20 @@ export const registerUser = async (
   email: string,
   password: string
 ) => {
+  const normalizedName = name.trim();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!normalizedName || !normalizedEmail || !password) {
+    throw new Error("Name, email and password are required");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
 
   const existingUser = await prisma.user.findUnique({
     where: {
-      email
+      email: normalizedEmail
     }
   });
 
@@ -26,14 +36,20 @@ export const registerUser = async (
 
   const user = await prisma.user.create({
     data:{
-      name,
-      email,
+      name: normalizedName,
+      email: normalizedEmail,
       password: hashedPassword
     }
   });
 
 
-  return user;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
 };
 
 
@@ -42,10 +58,11 @@ export const loginUser = async (
   email:string,
   password:string
 )=>{
+  const normalizedEmail = email.trim().toLowerCase();
 
   const user = await prisma.user.findUnique({
     where:{
-      email
+      email: normalizedEmail
     }
   });
 
