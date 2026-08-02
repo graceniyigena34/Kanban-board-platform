@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getAllTasks, getProjects } from '../../services/api';
+import { getProjects } from '../../services/api';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function DashboardPage() {
@@ -11,8 +11,17 @@ export default function DashboardPage() {
   const [taskCount, setTaskCount] = useState(0);
 
   useEffect(() => {
-    getProjects().then((p) => setProjectCount(p.length));
-    setTaskCount(getAllTasks().length);
+    let active = true;
+    (async () => {
+      const projects = await getProjects();
+      if (!active) return;
+      setProjectCount(projects.length);
+      setTaskCount(projects.reduce((count, project) => count + (project.tasks?.length ?? 0), 0));
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (

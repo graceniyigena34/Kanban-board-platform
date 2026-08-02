@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjects, createProject, deleteProject, getAllTasks, type Project } from '../../services/api';
+import { getProjects, createProject, deleteProject, type Project } from '../../services/api';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 
 export default function ProjectsPage() {
@@ -12,7 +12,13 @@ export default function ProjectsPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    getProjects().then(setProjects);
+    let active = true;
+    getProjects().then((items) => {
+      if (active) setProjects(items);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -36,9 +42,6 @@ export default function ProjectsPage() {
     await deleteProject(id);
     setProjects((prev) => prev.filter((p) => p.id !== id));
   };
-
-  const getTaskCount = (projectId: string) =>
-    getAllTasks().filter((t) => t.projectId === projectId).length;
 
   return (
     <DashboardLayout>
@@ -112,7 +115,7 @@ export default function ProjectsPage() {
         ) : (
           <div className="flex flex-col gap-4">
             {projects.map((project) => {
-              const taskCount = getTaskCount(project.id);
+              const taskCount = project.tasks?.length ?? 0;
               return (
                 <div
                   key={project.id}

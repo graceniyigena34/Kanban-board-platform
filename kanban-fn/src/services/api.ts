@@ -7,91 +7,184 @@ export type Task = {
   projectId: string;
   dueDate?: string | null;
   estimatedHours?: number | null;
+  assignedToId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Column = {
   id: string;
   name: string;
   order: number;
+  projectId?: string;
   tasks: Task[];
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Project = {
   id: string;
   name: string;
   description?: string | null;
+  ownerId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  columns?: Column[];
+  tasks?: Task[];
 };
 
 export type Board = Project & { columns: Column[] };
 
-const PROJECTS_KEY = 'taskflow_projects';
-const BOARDS_KEY = 'taskflow_boards';
+export type User = { id: string; name: string; email: string };
+export type AuthResponse = { user: User; token: string };
 
-function loadProjects(): Project[] {
-  const raw = localStorage.getItem(PROJECTS_KEY);
-  return raw ? JSON.parse(raw) : [];
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'https://kanban-bn-platform-1.onrender.com/api';
+const SESSION_KEY = 'taskflow_session';
+
+function readSession(): AuthResponse | null {
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as AuthResponse;
+  } catch {
+    return null;
+  }
 }
 
-function saveProjects(projects: Project[]) {
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+function getToken() {
+  return readSession()?.token ?? null;
 }
 
-function loadBoards(): Record<string, Column[]> {
-  const raw = localStorage.getItem(BOARDS_KEY);
-  return raw ? JSON.parse(raw) : {};
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (!headers.has('Content-Type') && init.body) {
+    headers.set('Content-Type', 'application/json');
+  }
+  const token = getToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers,
+  });
+
+  const text = await response.text();
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+
+  if (!response.ok) {
+    const errorData = data as { message?: string; error?: string } | null;
+    const message = errorData?.message || errorData?.error || response.statusText || 'Request failed';
+    throw new Error(message);
+  }
+
+  return data as T;
 }
 
-function saveBoards(boards: Record<string, Column[]>) {
-  localStorage.setItem(BOARDS_KEY, JSON.stringify(boards));
+function withTaskArrays(column: Column, tasks: Task[] = []): Column {
+  return { ...column, tasks };
+}
+
+async function hydrateColumns(projectId: string): Promise<Column[]> {
+  const columns = await getColumns(projectId);
+  const hydrated = await Promise.all(
+    columns.map(async (column) => withTaskArrays(column, await getTasksByColumn(column.id)))
+  );
+  return hydrated.sort((a, b) => a.order - b.order);
+}
+
+export async function login(email: string, password: string): Promise<AuthResponse> {
+  return request<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function register(name: string, email: string, password: string): Promise<{ user: User; message?: string }> {
+  return request<{ user: User; message?: string }>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password }),
+  });
 }
 
 export async function getProjects(): Promise<Project[]> {
-  return loadProjects();
+  return request<Project[]>('/projects');
+}
+
+export async function getProject(projectId: string): Promise<Project> {
+  return request<Project>(`/projects/${projectId}`);
 }
 
 export async function createProject(name: string, description?: string): Promise<Project> {
-  const project: Project = { id: `proj-${Date.now()}`, name, description };
-  const projects = [...loadProjects(), project];
-  saveProjects(projects);
+  const project = await request<Project>('/projects', {
+    method: 'POST',
+    body: JSON.stringify({ name, description }),
+  });
 
-  // seed default columns
-  const boards = loadBoards();
-  boards[project.id] = [
-    { id: `col-${Date.now()}-1`, name: 'To Do', order: 1, tasks: [] },
-    { id: `col-${Date.now()}-2`, name: 'In Progress', order: 2, tasks: [] },
-    { id: `col-${Date.now()}-3`, name: 'Done', order: 3, tasks: [] },
+  const defaultColumns = [
+    { name: 'To Do', order: 1 },
+    { name: 'In Progress', order: 2 },
+    { name: 'Done', order: 3 },
   ];
-  saveBoards(boards);
-  return project;
+
+  await Promise.all(defaultColumns.map((column) => createColumn(project.id, column.name, column.order)));
+
+  return { ...project, columns: [] };
+}
+
+export async function updateProject(projectId: string, data: { name?: string; description?: string }): Promise<Project> {
+  return request<Project>(`/projects/${projectId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
 }
 
 export async function deleteProject(id: string): Promise<void> {
-  saveProjects(loadProjects().filter((p) => p.id !== id));
-  const boards = loadBoards();
-  delete boards[id];
-  saveBoards(boards);
+  await request<void>(`/projects/${id}`, { method: 'DELETE' });
 }
 
 export async function getProjectBoard(projectId: string): Promise<Board> {
-  const project = loadProjects().find((p) => p.id === projectId);
-  if (!project) throw new Error('Project not found');
-  const boards = loadBoards();
-  const columns = boards[projectId] ?? [];
+  const project = await getProject(projectId);
+  const columns = await hydrateColumns(projectId);
   return { ...project, columns };
 }
 
-export async function createColumn(projectId: string, name: string, order: number): Promise<Column> {
-  const boards = loadBoards();
-  const column: Column = { id: `col-${Date.now()}`, name, order, tasks: [] };
-  boards[projectId] = [...(boards[projectId] ?? []), column];
-  saveBoards(boards);
-  return column;
+export async function getColumns(projectId: string): Promise<Column[]> {
+  return request<Column[]>(`/columns/project/${projectId}`);
 }
 
-export async function deleteColumn(projectId: string, columnId: string): Promise<void> {
-  const boards = loadBoards();
-  boards[projectId] = (boards[projectId] ?? []).filter((c) => c.id !== columnId);
-  saveBoards(boards);
+export async function createColumn(projectId: string, name: string, order: number): Promise<Column> {
+  return request<Column>('/columns', {
+    method: 'POST',
+    body: JSON.stringify({ projectId, name, order }),
+  });
+}
+
+export async function updateColumn(columnId: string, data: { name?: string; order?: number }): Promise<Column> {
+  return request<Column>(`/columns/${columnId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteColumn(columnId: string): Promise<void> {
+  await request<void>(`/columns/${columnId}`, { method: 'DELETE' });
+}
+
+export async function getTask(taskId: string): Promise<Task> {
+  return request<Task>(`/tasks/${taskId}`);
+}
+
+export async function getTasksByColumn(columnId: string): Promise<Task[]> {
+  return request<Task[]>(`/tasks/column/${columnId}`);
 }
 
 export async function createTask(payload: {
@@ -103,42 +196,25 @@ export async function createTask(payload: {
   dueDate?: string;
   estimatedHours?: number;
 }): Promise<Task> {
-  const task: Task = {
-    id: `task-${Date.now()}`,
-    title: payload.title,
-    description: payload.description,
-    priority: payload.priority as Task['priority'],
-    columnId: payload.columnId,
-    projectId: payload.projectId,
-    dueDate: payload.dueDate || null,
-    estimatedHours: payload.estimatedHours || null,
-  };
-  const boards = loadBoards();
-  boards[payload.projectId] = (boards[payload.projectId] ?? []).map((col) =>
-    col.id === payload.columnId ? { ...col, tasks: [...col.tasks, task] } : col
-  );
-  saveBoards(boards);
-  return task;
+  return request<Task>('/tasks', {
+    method: 'POST',
+    body: JSON.stringify({
+      projectId: payload.projectId,
+      columnId: payload.columnId,
+      title: payload.title,
+      description: payload.description,
+      priority: payload.priority,
+      dueDate: payload.dueDate ?? null,
+      estimatedHours: payload.estimatedHours ?? null,
+    }),
+  });
 }
 
-export async function moveTask(taskId: string, fromColumnId: string, toColumnId: string, projectId: string): Promise<void> {
-  const boards = loadBoards();
-  const columns = boards[projectId] ?? [];
-  let movedTask: Task | undefined;
-  const updated = columns.map((col) => {
-    if (col.id === fromColumnId) {
-      movedTask = col.tasks.find((t) => t.id === taskId);
-      return { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) };
-    }
-    return col;
+export async function moveTask(taskId: string, fromColumnId: string, toColumnId: string, projectId?: string): Promise<void> {
+  await request<void>(`/tasks/${taskId}/move`, {
+    method: 'PUT',
+    body: JSON.stringify({ columnId: toColumnId, fromColumnId, projectId }),
   });
-  if (movedTask) {
-    const final = updated.map((col) =>
-      col.id === toColumnId ? { ...col, tasks: [...col.tasks, { ...movedTask!, columnId: toColumnId }] } : col
-    );
-    boards[projectId] = final;
-    saveBoards(boards);
-  }
 }
 
 export async function updateTask(taskId: string, columnId: string, projectId: string, data: {
@@ -148,49 +224,39 @@ export async function updateTask(taskId: string, columnId: string, projectId: st
   dueDate?: string;
   estimatedHours?: number;
 }): Promise<Task> {
-  const boards = loadBoards();
-  let updated!: Task;
-  boards[projectId] = (boards[projectId] ?? []).map((col) => {
-    if (col.id !== columnId) return col;
-    const tasks = col.tasks.map((t) => {
-      if (t.id !== taskId) return t;
-      updated = {
-        ...t,
-        title: data.title,
-        description: data.description ?? t.description,
-        priority: data.priority as Task['priority'],
-        dueDate: data.dueDate ?? t.dueDate,
-        estimatedHours: data.estimatedHours ?? t.estimatedHours,
-      };
-      return updated;
-    });
-    return { ...col, tasks };
+  return request<Task>(`/tasks/${taskId}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      columnId,
+      projectId,
+      ...data,
+      dueDate: data.dueDate ?? null,
+      estimatedHours: data.estimatedHours ?? null,
+    }),
   });
-  saveBoards(boards);
-  return updated;
 }
 
-export async function deleteTask(taskId: string, columnId: string, projectId: string): Promise<void> {
-  const boards = loadBoards();
-  boards[projectId] = (boards[projectId] ?? []).map((col) =>
-    col.id === columnId ? { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) } : col
-  );
-  saveBoards(boards);
+export async function deleteTask(taskId: string, _columnId: string, _projectId: string): Promise<void> {
+  await request<void>(`/tasks/${taskId}`, { method: 'DELETE' });
 }
 
 export type TaskWithMeta = Task & { projectName: string; columnName: string };
 
-export function getAllTasks(): TaskWithMeta[] {
-  const projects = loadProjects();
-  const boards = loadBoards();
+export async function getAllTasks(): Promise<TaskWithMeta[]> {
+  const projects = await getProjects();
   const result: TaskWithMeta[] = [];
-  for (const project of projects) {
-    const columns = boards[project.id] ?? [];
-    for (const col of columns) {
-      for (const task of col.tasks) {
-        result.push({ ...task, projectName: project.name, columnName: col.name });
+
+  await Promise.all(
+    projects.map(async (project) => {
+      const columns = project.columns?.length ? project.columns : await hydrateColumns(project.id);
+      for (const column of columns) {
+        const tasks = column.tasks?.length ? column.tasks : await getTasksByColumn(column.id);
+        for (const task of tasks) {
+          result.push({ ...task, projectName: project.name, columnName: column.name });
+        }
       }
-    }
-  }
+    })
+  );
+
   return result;
 }

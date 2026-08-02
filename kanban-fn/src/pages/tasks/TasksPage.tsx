@@ -15,7 +15,15 @@ export default function TasksPage() {
   const [filter, setFilter] = useState<'ALL' | 'HIGH' | 'MEDIUM' | 'LOW'>('ALL');
 
   useEffect(() => {
-    setTasks(getAllTasks());
+    let active = true;
+    (async () => {
+      const items = await getAllTasks();
+      if (active) setTasks(items);
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const filtered = filter === 'ALL' ? tasks : tasks.filter((t) => t.priority === filter);

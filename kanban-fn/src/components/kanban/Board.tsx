@@ -64,7 +64,7 @@ export default function Board({ board, onBoardChange }: Props) {
   };
 
   return (
-    <div className="flex gap-5 overflow-x-auto pb-4">
+    <div className="board-scroll flex gap-4 overflow-x-auto pb-2">
       {[...board.columns]
         .sort((a, b) => a.order - b.order)
         .map((column) => (

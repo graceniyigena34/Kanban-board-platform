@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Clock3, PencilLine, Trash2 } from 'lucide-react';
 import type { Task } from '../../services/api';
 
 interface Props {
@@ -62,7 +63,6 @@ export default function TaskCard({ task, onDelete, onUpdate }: Props) {
 
   return (
     <>
-      {/* Card */}
       <div
         draggable
         onDragStart={(e) => {
@@ -70,82 +70,89 @@ export default function TaskCard({ task, onDelete, onUpdate }: Props) {
           e.dataTransfer.setData('fromColumnId', task.columnId);
         }}
         onClick={openModal}
-        className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 cursor-pointer hover:shadow-md hover:border-blue-900 transition group"
+        className="group cursor-pointer rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_12px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_18px_36px_rgba(15,23,42,0.1)]"
       >
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-gray-800 text-sm leading-snug">{task.title}</h3>
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-sm font-extrabold leading-snug text-slate-950">{task.title}</h3>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.columnId); }}
-            className="text-gray-300 hover:text-red-400 transition text-lg leading-none opacity-0 group-hover:opacity-100 shrink-0"
+            className="shrink-0 rounded-full p-1 text-slate-300 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 lg:opacity-0"
           >
-            ×
+            <Trash2 size={16} />
           </button>
         </div>
         {task.description && (
-          <p className="text-xs text-gray-400 mt-1.5 line-clamp-2">{task.description}</p>
+          <p className="mt-1.5 line-clamp-2 text-xs leading-6 text-slate-500">{task.description}</p>
         )}
         {(task.dueDate || task.estimatedHours) && (
-          <div className="flex items-center gap-3 mt-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
             {task.dueDate && (
-              <span className="text-xs text-gray-400">📅 {new Date(task.dueDate).toLocaleDateString()}</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1">
+                <Clock3 size={13} className="text-slate-400" />
+                {new Date(task.dueDate).toLocaleDateString()}
+              </span>
             )}
             {task.estimatedHours && (
-              <span className="text-xs text-gray-400">⏱ {task.estimatedHours}h</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1">
+                <Clock3 size={13} className="text-slate-400" />
+                {task.estimatedHours}h
+              </span>
             )}
           </div>
         )}
-        <div className="mt-3">
-          <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${priority_.className}`}>
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${priority_.className}`}>
             {priority_.label}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 transition group-hover:text-slate-700">
+            <PencilLine size={13} />
+            Open
           </span>
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            className="panel-surface-strong w-full max-w-md rounded-[30px] p-6 sm:p-7"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-gray-900">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-xl font-extrabold tracking-tight text-slate-950">
                 {editing ? 'Edit Task' : 'Task Details'}
               </h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">×</button>
+              <button onClick={() => setShowModal(false)} className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-950">×</button>
             </div>
 
             {editing ? (
-              /* Edit Form */
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Title</label>
                   <input
                     autoFocus
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    className="field-shell"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Description</label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 resize-none"
+                    className="field-shell resize-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Priority</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as 'LOW' | 'MEDIUM' | 'HIGH')}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    className="field-shell"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -153,16 +160,16 @@ export default function TaskCard({ task, onDelete, onUpdate }: Props) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Due date</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Due date</label>
                   <input
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    className="field-shell"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Estimated hours</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Estimated hours</label>
                   <input
                     type="number"
                     min="0.5"
@@ -170,69 +177,67 @@ export default function TaskCard({ task, onDelete, onUpdate }: Props) {
                     value={estimatedHours}
                     onChange={(e) => setEstimatedHours(e.target.value)}
                     placeholder="e.g. 2.5"
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    className="field-shell"
                   />
                 </div>
                 <div className="flex gap-3 pt-1">
                   <button
                     onClick={handleSave}
-                    className="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-xl transition"
+                    className="flex-1 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     Save Changes
                   </button>
                   <button
                     onClick={() => setEditing(false)}
-                    className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition"
+                    className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-950"
                   >
                     Cancel
                   </button>
                 </div>
               </div>
             ) : (
-              /* View Mode */
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Title</p>
-                  <p className="font-semibold text-gray-900">{task.title}</p>
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Title</p>
+                  <p className="font-extrabold text-slate-950">{task.title}</p>
                 </div>
                 {task.description && (
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Description</p>
-                    <p className="text-sm text-gray-700">{task.description}</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Description</p>
+                    <p className="text-sm leading-7 text-slate-600">{task.description}</p>
                   </div>
                 )}
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-4">
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Priority</p>
-                    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${priority_.className}`}>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Priority</p>
+                    <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${priority_.className}`}>
                       {priority_.label}
                     </span>
                   </div>
                   {task.dueDate && (
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Due date</p>
-                      <p className="text-sm text-gray-700">📅 {new Date(task.dueDate).toLocaleDateString()}</p>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Due date</p>
+                      <p className="text-sm text-slate-700">📅 {new Date(task.dueDate).toLocaleDateString()}</p>
                     </div>
                   )}
                   {task.estimatedHours && (
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Estimated</p>
-                      <p className="text-sm text-gray-700">⏱ {task.estimatedHours}h</p>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Estimated</p>
+                      <p className="text-sm text-slate-700">⏱ {task.estimatedHours}h</p>
                     </div>
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-3 pt-2 border-t border-gray-100">
+                <div className="flex gap-3 border-t border-slate-200 pt-4">
                   <button
                     onClick={() => setEditing(true)}
-                    className="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-xl transition"
+                    className="flex-1 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     Edit Task
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-2.5 rounded-xl transition"
+                    className="flex-1 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100"
                   >
                     Delete Task
                   </button>

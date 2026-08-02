@@ -56,49 +56,46 @@ export default function Column({ column, onDrop, onDeleteTask, onUpdateTask, onA
       onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
-      className={`flex flex-col w-72 shrink-0 rounded-2xl p-4 transition border-2 ${
-        isDragOver ? `${styles.dragBg} ${styles.dragBorder}` : 'bg-white border-gray-200'
+      className={`flex w-80 shrink-0 flex-col rounded-[28px] border p-4 shadow-[0_18px_40px_rgba(15,23,42,0.06)] transition ${
+        isDragOver ? `${styles.dragBg} ${styles.dragBorder} scale-[1.01]` : 'panel-surface'
       }`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className={`w-2.5 h-2.5 rounded-full ${styles.dot}`} />
-          <h2 className="font-semibold text-gray-800 text-sm">{column.name}</h2>
+          <h2 className="text-sm font-extrabold tracking-tight text-slate-950">{column.name}</h2>
         </div>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${styles.badge}`}>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${styles.badge}`}>
           {column.tasks.length}
         </span>
       </div>
 
-      {/* Tasks */}
-      <div className="flex flex-col gap-2.5 flex-1 min-h-[60px]">
+      <div className="flex min-h-15 flex-1 flex-col gap-2.5 rounded-[22px] bg-white/35 p-1">
         {column.tasks.map((task: Task) => (
           <TaskCard key={task.id} task={task} onDelete={onDeleteTask} onUpdate={onUpdateTask} />
         ))}
       </div>
 
-      {/* Add Task Form */}
       {showAdd ? (
-        <form onSubmit={handleAddSubmit} className="mt-3 bg-slate-50 rounded-xl p-3 border border-gray-200 space-y-2">
+        <form onSubmit={handleAddSubmit} className="mt-3 space-y-2 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
           <input
             autoFocus
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title"
             required
-            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+            className="field-shell text-sm"
           />
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description (optional)"
-            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+            className="field-shell text-sm"
           />
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+            className="field-shell text-sm"
           >
             <option value="LOW">Low priority</option>
             <option value="MEDIUM">Medium priority</option>
@@ -107,18 +104,18 @@ export default function Column({ column, onDrop, onDeleteTask, onUpdateTask, onA
 
           {/* Due Date */}
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Due date</label>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">Due date</label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+              className="field-shell text-sm"
             />
           </div>
 
           {/* Estimated Hours */}
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Estimated hours</label>
+            <label className="mb-1 block text-xs font-semibold text-slate-500">Estimated hours</label>
             <input
               type="number"
               min="0.5"
@@ -126,15 +123,15 @@ export default function Column({ column, onDrop, onDeleteTask, onUpdateTask, onA
               value={estimatedHours}
               onChange={(e) => setEstimatedHours(e.target.value)}
               placeholder="e.g. 2.5"
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+              className="field-shell text-sm"
             />
           </div>
 
           <div className="flex gap-2 pt-1">
-            <button type="submit" className="flex-1 bg-blue-900 text-white text-sm py-1.5 rounded-lg hover:bg-blue-800 transition">
+            <button type="submit" className="flex-1 rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
               Add Task
             </button>
-            <button type="button" onClick={() => setShowAdd(false)} className="text-gray-400 text-sm px-2 hover:text-blue-900">
+            <button type="button" onClick={() => setShowAdd(false)} className="px-2 text-sm font-semibold text-slate-500 transition hover:text-slate-950">
               Cancel
             </button>
           </div>
@@ -142,7 +139,7 @@ export default function Column({ column, onDrop, onDeleteTask, onUpdateTask, onA
       ) : (
         <button
           onClick={() => setShowAdd(true)}
-          className="mt-3 flex items-center gap-1.5 text-sm text-gray-400 hover:text-blue-900 transition font-medium"
+          className="mt-3 inline-flex items-center gap-2 rounded-full border border-dashed border-slate-300 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-500 transition hover:border-slate-400 hover:text-slate-950"
         >
           <span className="text-lg leading-none">+</span> Add task
         </button>

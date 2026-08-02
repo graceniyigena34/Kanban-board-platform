@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-
-type User = { id: string; name: string; email: string };
-type StoredUser = User & { password: string };
+import { login as apiLogin, register as apiRegister, type User } from '../services/api';
 
 type AuthContextType = {
   user: User | null;
@@ -13,13 +11,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const USERS_KEY = 'taskflow_users';
 const SESSION_KEY = 'taskflow_session';
-
-function loadUsers(): StoredUser[] {
-  const raw = localStorage.getItem(USERS_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -27,29 +19,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const raw = localStorage.getItem(SESSION_KEY);
-    if (raw) setUser(JSON.parse(raw));
+    if (raw) {
+      try {
+        const session = JSON.parse(raw) as { user?: User };
+        if (session.user) setUser(session.user);
+      } catch {
+        localStorage.removeItem(SESSION_KEY);
+      }
+    }
     setLoading(false);
   }, []);
 
   const register = async (name: string, email: string, password: string) => {
     if (!name || !email || !password) throw new Error('All fields are required');
-    const users = loadUsers();
-    if (users.find((u) => u.email === email)) throw new Error('Email already registered');
-    const newUser: StoredUser = { id: `user-${Date.now()}`, name, email, password };
-    localStorage.setItem(USERS_KEY, JSON.stringify([...users, newUser]));
-    const session: User = { id: newUser.id, name, email };
-    setUser(session);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    await apiRegister(name, email, password);
+    const result = await apiLogin(email, password);
+    setUser(result.user);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(result));
   };
 
   const login = async (email: string, password: string) => {
     if (!email || !password) throw new Error('Email and password are required');
-    const users = loadUsers();
-    const found = users.find((u) => u.email === email && u.password === password);
-    if (!found) throw new Error('Invalid email or password');
-    const session: User = { id: found.id, name: found.name, email: found.email };
-    setUser(session);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    const result = await apiLogin(email, password);
+    setUser(result.user);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(result));
   };
 
   const logout = () => {
